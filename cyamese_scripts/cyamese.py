@@ -1,16 +1,4 @@
-import itertools as it
 import argparse
-
-print("Welcome to CYAMESE: training a model that learns an individual's\
- cytometry fingerprint. Beginning program.")
-
-import tensorflow as tf
-
-from metautils import makemeta
-from markers import setmarkers
-from createpairs import generatedicts, pairandsplit, testpairs
-from polish import stacker, normer
-from mlutils import getmodel, trainCNN
 
 ### Setup argument parser ###
 
@@ -39,26 +27,26 @@ parser.add_argument('f', metavar='pathtofcs', type=str,
                     help='location of fcs files with metadata pickle')
 
 parser.add_argument('-s', metavar='subset', type=int, default=-1,
-                help='random subset of files to use for training \
-                (default: use all')
+                help='random subset of files to use for training ' + 
+                '(default: use all)')
 
 parser.add_argument('-e', metavar='epochs', type=int, default=100,
                     help='number of epochs to train (default=100) ')
 
 parser.add_argument('-nc', metavar='numcells', type=int, default=1500,
-                help='number of cells per "image" of individual\
-                 (default=1500)')
+                help='number of cells per "image" of individual ' + 
+                '(default=1500)')
 
 parser.add_argument('-tr', metavar='trainloops', type=int, default=300,
-                help='number of image pairs per subject for training\
-                 (defaults=300)')
+                help='number of image pairs per subject for training ' + 
+                '(defaults=300)')
 
 parser.add_argument('-te', metavar='testloops', type=int, default=300,
-                help='number of image pairs per subject for testing\
-                 (defaults=300)')
+                help='number of image pairs per subject for testing ' + 
+                '(defaults=300)')
 
 parser.add_argument('--lb', action='store_false', default=True,
-                    help='option to print loading bar [default: on]')
+                    help='option to print loading bar (default: on)')
 
 
 
@@ -90,9 +78,31 @@ cooler more important question: can we recognize a new patient that
 wasn't even trained on at all?
 
 
-
 '''
+
+# Imports
+import itertools as it
+import os
+print("Welcome to CYAMESE: training a model that learns an individual's\
+ cytometry fingerprint. Beginning program.")
+
+import tensorflow as tf
+
+from metautils import makemeta
+from markers import setmarkers
+from createpairs import generatedicts, pairandsplit, testpairs
+from polish import stacker, normer
+from mlutils import getmodel, trainCNN
+
 ###########################################################################
+'''
+Quick input check
+'''
+if pathtofcs[-1] != '/': # add the forward slash if it's not there
+    pathtofcs += '/'
+if not os.path.exists(pathtofcs): # Confirm that meta path exists
+    print('Supplied pathtofcs does not exist. Try again.')
+    raise SystemExit
 '''
 The training regimen is only using data from Mark Davis' study
 from Stanford. The chosen studies are shown below. Despite the 

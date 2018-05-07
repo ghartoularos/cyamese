@@ -14,13 +14,6 @@ def makemeta(pathtofcs, studies, studdict, rand_subset):
     '''
     Makes a metadata Pandas dataframe from a csv or pickle
     '''
-
-    if pathtofcs[-1] != '/': # add the forward slash if it's not there
-        pathtofcs += '/'
-    if not os.path.exists(pathtofcs): # Confirm that meta path exists
-        print('Supplied pathtofcs does not exist. Try again.')
-        raise SystemExit
-
     # get the metadata file
     metafiles = [f for f in os.listdir(pathtofcs) if 'meta' in f]
 
