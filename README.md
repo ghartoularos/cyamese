@@ -12,20 +12,20 @@ Create and activate your environment. Note you may want to include
 --system-site-packages to inherit global packages (on GPU, include this).
 
 ```
-virtualenv cypy #--system-site-packages
+virtualenv --python=/usr/bin/python2.7 cypy #--system-site-packages
 source cypy/bin/activate
 ```
 
 If you're running on a local computer, use:
 
 ```
-pip2 install -r config_files/requirements_local.txt
+pip install -r config_files/requirements_local.txt
 ```
 
 If you're running on the GPU, use:
 
 ```
-pip2 install -r config_files/requirements_gpu.txt
+pip install -r config_files/requirements_gpu.txt
 ```
 
 Once downloaded, you should have the fcm library loaded. There is a 
