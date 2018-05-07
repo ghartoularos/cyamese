@@ -33,7 +33,7 @@ bug in the fcm library script gate.py. I've provided the working version
 here. Replace it:
 
 ```
-mv config_files/gate.py cyamese_pkg/cypy/lib/python2.7/site-packages/fcm/core/gate.py
+mv config_files/gate.py cypy/lib/python2.7/site-packages/fcm/core/gate.py
 ```
 
 Then cd into the cyamese_scripts directory and run the cyamese script. First argument
