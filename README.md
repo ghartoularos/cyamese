@@ -5,7 +5,7 @@ Siamese network for machine learning flow cytometry data for Python2.
 First pip install virtualenv if you don't already have it.
 
 ```
-pip install virtualenv
+pip2 install virtualenv
 ```
 
 Create and activate your environment. Note you may want to include
