@@ -48,6 +48,8 @@ parser.add_argument('-te', metavar='testloops', type=int, default=300,
 parser.add_argument('--lb', action='store_false', default=True,
                     help='option to print loading bar (default: on)')
 
+parser.add_argument('--gpu', action='store_true', default=False,
+                    help='option if running on GPU (default: off)')
 
 
 args = parser.parse_args()  # Parse arguments
@@ -59,6 +61,7 @@ numcells = args.nc
 trainloops = args.tr
 testloops = args.te
 loadbar = args.lb
+gpu_switch = args.gpu
 
 '''
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~TODO:~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -211,4 +214,5 @@ model = getmodel(input_shape, width)
 trainCNN trains the convolutional neural network.
 '''
 print("~~~~~~Begin Training~~~~~~")
-trainCNN(train_x, train_y, model, epochs, test_x, test_y, loadbar)
+trainCNN(train_x, train_y, model, epochs, 
+         test_x, test_y, loadbar,  gpu_switch)

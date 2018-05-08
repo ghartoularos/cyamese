@@ -58,7 +58,7 @@ def getmodel(input_shape, width):
 
     return model
 
-def trainCNN(train_x, train_y, model, epochs, test_x, test_y, loadbar):
+def trainCNN(train_x, train_y, model, epochs, test_x, test_y, loadbar, gpu_switch):
     rms = Adam()
     model.compile(loss=contrastive_loss, optimizer=rms, metrics=[accuracy])
     if loadbar:
@@ -70,4 +70,23 @@ def trainCNN(train_x, train_y, model, epochs, test_x, test_y, loadbar):
                      epochs=epochs,
                      validation_data=([test_x[:, 0], test_x[:, 1]], test_y),
                      verbose=verbose)
+    import matplotlib as mpl
+    if gpu_switch:
+        mpl.use('Agg')
+    import matplotlib.pyplot as plt
+    plt.plot(modelFit.history['acc'])
+    plt.plot(modelFit.history['val_acc'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig('accuracy.png')
+    plt.close()
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig('loss.png')
     return
