@@ -4,6 +4,8 @@ from keras.models import Model
 from keras.layers import (Input, Flatten, Dense, Dropout, Lambda,
                           Conv2D, AveragePooling2D, MaxPooling2D,
                           Conv1D, Activation)
+from time import localtime, strftime
+import subprocess
 
 def create_base_network(input_shape, width):
     input = Input(shape=input_shape)
@@ -74,19 +76,22 @@ def trainCNN(train_x, train_y, model, epochs, test_x, test_y, loadbar, gpu_switc
     if gpu_switch:
         mpl.use('Agg')
     import matplotlib.pyplot as plt
-    plt.plot(modelFit.history['acc'])
-    plt.plot(modelFit.history['val_acc'])
+    foldername = 'results%s' % strftime("%Y%m%d-%H%M%S", localtime())
+    shellcommand = ['mkdir', foldername]
+    p = subprocess.Popen(shellcommand, stdout=subprocess.PIPE)
+    plt.plot(modelFit.history['accuracy'])
+    plt.plot(modelFit.history['val_accuracy'])
     plt.title('model accuracy')
     plt.ylabel('accuracy')
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig('accuracy.png')
+    plt.savefig('%s/accuracy.png' % foldername)
     plt.close()
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
+    plt.plot(modelFit.history['loss'])
+    plt.plot(modelFit.history['val_loss'])
     plt.title('model loss')
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig('loss.png')
-    return
+    plt.savefig('%s/loss.png' % foldername)
+    return 
