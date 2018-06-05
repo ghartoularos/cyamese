@@ -4,18 +4,55 @@ from keras.models import Model
 from keras.layers import (Input, Flatten, Dense, Dropout, Lambda,
                           Conv2D, AveragePooling2D, MaxPooling2D,
                           Conv1D, Activation)
+from keras.utils import Sequence
 from time import localtime, strftime
+import os
+import random
+import numpy as np
 import subprocess
 
+class DataGenerator(object):
+    """docstring for DataGenerator"""
+    def __init__(self,pkls):
+        filenames  = os.listdir(pkls)
+        self.path = pkls
+        self.train_names = [f for f in filenames if 'tr' in f]
+        self.test_names = [f for f in filenames if 'te' in f]
+        self.train_steps = len(self.train_names)
+        self.test_steps = len(self.test_names)
+
+    def next_train(self):
+        while 1:
+            random.shuffle(self.train_names)
+            for filename in self.train_names:
+                data = np.load(self.path + '/' + filename)
+                if ".pos." in filename:
+                    label = np.ones((len(data)))
+                else:
+                    label = np.zeros((len(data)))
+                data_t = np.transpose(data,(1,0,2,3,4))
+                yield ([data_t[0],data_t[1]],label)
+    def next_test(self):
+        while 1:
+            random.shuffle(self.test_names)
+            for filename in self.test_names:
+                data = np.load(self.path + '/' + filename)
+                if ".pos." in filename:
+                    label = np.ones((len(data)))
+                else:
+                    label = np.zeros((len(data)))
+                data_t = np.transpose(data,(1,0,2,3,4))
+                yield ([data_t[0],data_t[1]],label)
+
 def create_base_network(input_shape, width):
-    input = Input(shape=input_shape)
-    x=Conv2D(filters=32,#32, 
+    modinput = Input(shape=input_shape)
+    x=Conv2D(filters=32, 
              kernel_size=(1, width),
-             activation='relu')(input)
+             activation='relu')(modinput)
     x = AveragePooling2D(pool_size=(input_shape[0], 1))(x)
     x = Flatten()(x)
     x = Dense(20, activation='relu')(x)
-    return Model(input, x)
+    return Model(modinput, x)
 
 def euclidean_distance(vects):
     x, y = vects
@@ -42,6 +79,7 @@ def accuracy(y_true, y_pred):
 
 def getmodel(input_shape, width):
     # network definition
+    # raw_input(input_shape)
     base_network = create_base_network(input_shape, width)
 
     input_a = Input(shape=input_shape)
@@ -60,23 +98,27 @@ def getmodel(input_shape, width):
 
     return model
 
-def trainCNN(train_x, train_y, model, epochs, test_x, test_y, loadbar, gpu_switch):
+def trainCNN(pathtopkl, model, epochs, loadbar, gpu_switch):
     rms = Adam()
     model.compile(loss=contrastive_loss, optimizer=rms, metrics=[accuracy])
     if loadbar:
-      verbose = 1
+        verbose = 1
     else:
-      verbose = 2
-    modelFit = model.fit([train_x[:, 0], train_x[:, 1]], train_y,
-                     batch_size=128,
-                     epochs=epochs,
-                     validation_data=([test_x[:, 0], test_x[:, 1]], test_y),
-                     verbose=verbose)
+        verbose = 2
+    datagen = DataGenerator(pathtopkl)
+    modelFit = model.fit_generator(generator=datagen.next_train(),
+                                   epochs = epochs,
+                                   steps_per_epoch=datagen.train_steps,
+                                   validation_data=datagen.next_test(),
+                                   validation_steps=datagen.test_steps,
+                                   verbose=verbose)
     import matplotlib as mpl
     if gpu_switch:
         mpl.use('Agg')
     import matplotlib.pyplot as plt
-    foldername = 'results%s' % strftime("%Y%m%d-%H%M%S", localtime())
+    randint = random.randint(0,1000)
+    print("Result ID: MMDD-%d" % randint)
+    foldername = '%s/result_%s-%d' % (pathtopkl, strftime("%m%d", localtime()), randint)
     shellcommand = ['mkdir', foldername]
     p = subprocess.Popen(shellcommand, stdout=subprocess.PIPE)
     plt.plot(modelFit.history['accuracy'])
